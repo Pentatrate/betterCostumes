@@ -457,9 +457,15 @@ st:setFgDraw(function(self)
 	if not hoveredCostume and self.p then self.p.forceCostume = nil end
 
 	imgui.End()
-
+	
 	if appliedBBPTheme then bbp.gui.popStyle() end
-
+	
+	if imgui.love.GetWantCaptureMouse() then
+		love.mouse.setVisible(true)
+	elseif savedata.options.game.customCursorInMenu and (savedata.options.game.cursorMode ~= "default") then
+		love.mouse.setVisible(false)
+	end
+	
 	if self.p then
 		self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
 		self.p.y = 180
