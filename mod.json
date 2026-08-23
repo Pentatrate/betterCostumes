@@ -1,0 +1,8 @@
+{
+	"id": "better-costumes",
+	"name": "Better Costumes",
+	"version": "1.0.0",
+	"author": "Pentatrate",
+	"description": "Reworks the costumes menu and adds selective randomness",
+	"config": {}
+}

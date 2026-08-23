@@ -1,0 +1,41 @@
+[manifest]
+dump_lua = true
+priority = 0
+version = "1.0.0"
+
+# Better costumes state ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
+[[patches]]
+[patches.pattern]
+match_indent = true
+pattern = '''end, 17*3, nil, sprites.menu.costumes)'''
+payload = '''
+if mods["better-costumes"].config.betterCostumes then
+	self.mainMenu:addOption("Better Costumes",function()
+		cs = bs.load("BetterCostumes")
+		self:leave()
+		cs.bg = self.bg
+		cs.menuMusicManager = self.menuMusicManager
+		cs:init()
+	end, 17 * 8, nil, sprites.menu.costumesPlus) -- Penta: what the hell is the y value even for, it doesnt do anything visually?
+end
+'''
+position = "after"
+target = "states/Menu.lua"
+times = 1
+
+# Better costumes state ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
+[[patches]]
+[patches.pattern]
+match_indent = true
+pattern = '''self.randomCostume = unlockedCostumeList[math.random(#unlockedCostumeList)]'''
+payload = '''
+if mods["better-costumes"].config.selectiveRandomness then
+	local array = utilitools.table.keysToValues(mods["better-costumes"].config.selectedRandomness)
+	self.randomCostume = array[math.random(#array)] or "none"
+else
+	self.randomCostume = unlockedCostumeList[math.random(#unlockedCostumeList)]
+end
+'''
+position = "after"
+target = "obj/Player.lua"
+times = 1
