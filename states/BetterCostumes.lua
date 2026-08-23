@@ -460,11 +460,13 @@ st:setFgDraw(function(self)
 
 	if appliedBBPTheme then bbp.gui.popStyle() end
 
-	self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
-	self.p.y = 180
-	self.p.drawScale = 2
-	self.p.lineWidth = 3
-	self.p.forceCostume = hoveredCostume
+	if self.p then
+		self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
+		self.p.y = 180
+		self.p.drawScale = 2
+		self.p.lineWidth = 3
+		self.p.forceCostume = hoveredCostume
+	end
 	love.graphics.setCanvas(oldCanv)
 end)
 
