@@ -28,6 +28,10 @@
 			"extension": "lua",
 			"load": true,
 			"call": true
+		},
+		"startup": {
+			"extension": "lua",
+			"load": true
 		}
 	},
 	"config": true,

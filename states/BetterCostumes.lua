@@ -74,46 +74,47 @@ function st:setCostume(id)
 	end
 end
 
-function st:createCostume()
+function st:leave()
 	utilitools.config.save(mod)
 	self.p.delete = true
 	self.p = nil
+	for id, p in pairs(self.ps) do
+		p.delete = true
+		self.ps[id] = nil
+	end
+	cs.bg = self.bg
+end
+function st:createCostume()
 	self.menuMusicManager:stop()
 	returnData = { state = 'BetterCostumes', vars = { tab = self.tab } }
 
 	cs = bs.load("CostumeEditor")
 	cs.newCostume = true
-	cs.bg = self.bg
+	self:leave()
 	cs:init()
 end
 function st:editCostume(id)
 	local costume = Costumes[id]
 	if costume and self:isEditable(id) then
-		utilitools.config.save(mod)
-		self.p.delete = true
-		self.p = nil
 		self.menuMusicManager:stop()
 		returnData = { state = 'BetterCostumes', vars = { tab = self.tab } }
 
 		cs = bs.load("CostumeEditor")
 		cs.path = costume.path
-		cs.bg = self.bg
+		self:leave()
 		cs:init()
 	end
 end
 function st:quitToMenu()
-	utilitools.config.save(mod)
 	sdfunc.save()
 
-	self.p.delete = true
-	self.p = nil
 	self.menuMusicManager:clearOnBeatHooks()
 	self.menuMusicManager:forceUnmute()
 	self.bg.skipRender = false
 
 	cs = bs.load("Menu")
 	cs.menuMusicManager = self.menuMusicManager
-	cs.bg = self.bg
+	self:leave()
 	cs:init()
 end
 
@@ -199,6 +200,7 @@ st:setInit(function(self)
 
 	self.canvs = {}
 	self.canvs2 = {}
+	self.ps = {}
 	local oldCanv = love.graphics.getCanvas()
 	for id, costume in pairs(Costumes) do
 		if not self.fakeCostumes[id] and id ~= "random" then
@@ -214,6 +216,11 @@ st:setInit(function(self)
 
 			self.p.forceCostume = id
 			self.p:draw()
+
+			self.ps[id] = em.init("Player", { x = 0, y = 0 })
+			self.ps[id].skipRender = true
+			self.ps[id].skipUpdate = true
+			self.ps[id].forceCostume = id
 		end
 	end
 	love.graphics.setCanvas(oldCanv)
@@ -412,19 +419,46 @@ st:setFgDraw(function(self)
 			if costume.preview then
 				local pos2 = imgui.GetCursorPos()
 				local canv
-				if self.p and (mod.config.realCostumes == "always" or (mod.config.realCostumes == "hover" and hovered) or (mod.config.realCostumes == "antihover" and not hovered)) then
-					if mod.config.liveRealCostumes then
+				if (mod.config.realCostumes == "always" or (mod.config.realCostumes == "hover" and hovered) or (mod.config.realCostumes == "antihover" and not hovered)) then
+					if self.ps[id] and mod.config.liveRealCostumes == "independent" then
+						local pos3 = imgui.GetCursorScreenPos()
 						canv = self.canvs[id]
 						love.graphics.setCanvas(canv)
 						love.graphics.clear()
-						self.p.x = self.previewSize / 2
-						self.p.y = self.previewSize / 2
-						self.p.drawScale = 1
-						self.p.lineWidth = 2
+						self.ps[id].x = self.previewSize / 2
+						self.ps[id].y = self.previewSize / 2
+						self.ps[id].skipUpdate = false
 
-						self.p.forceCostume = id
-						self.p:draw()
-					else canv = self.canvs2[id] end
+						self.ps[id]:draw()
+						local rescaleFactor = 1
+						local moveX = 0
+						local moveY = 0
+						if mods["imgui-scale-fix"] and mods["imgui-scale-fix"].enabled then
+							local cx, cy = love.graphics.getWidth() / 2, love.graphics.getHeight() / 2
+							local aspect1, aspect2 = project.res.cx / project.res.cy, cx / cy
+							rescaleFactor = aspect2 > aspect1 and cy / project.res.cy or cx / project.res.cx
+							moveX = aspect2 > aspect1 and cx / rescaleFactor - project.res.cx or 0
+							moveY = aspect2 > aspect1 and 0 or cy / rescaleFactor - project.res.cy
+						else
+							rescaleFactor = imgui.canvasScale
+						end
+						self.ps[id].x = (pos3.x + self.previewSize / 2) / rescaleFactor - moveX
+						self.ps[id].y = (pos3.y + self.previewSize / 2) / rescaleFactor - moveY
+					else
+						if self.ps[id] then self.ps[id].skipUpdate = true end
+						if self.p and mod.config.liveRealCostumes == "parallel" then
+							canv = self.canvs[id]
+							love.graphics.setCanvas(canv)
+							love.graphics.clear()
+							self.p.x = self.previewSize / 2
+							self.p.y = self.previewSize / 2
+							self.p.drawScale = 1
+							self.p.lineWidth = 2
+
+							self.p.forceCostume = id
+							self.p:draw()
+						else canv = self.canvs2[id] end
+					end
 				end
 				imgui.Image(canv or costume.preview, imgui.ImVec2_Float(costume.preview:getWidth(), costume.preview:getHeight()), nil, nil, not self:isUnlocked(id) and imgui.ImVec4_Float(0.5, 0.5, 0.5, 1) or nil)
 				if not self:isUnlocked(id) then
@@ -449,22 +483,26 @@ st:setFgDraw(function(self)
 			imgui.EndChild()
 
 			if self:isActive(id) or self:isPotential(id) or (hovered and self:isUnlocked(id)) then imgui.PopStyleColor() end
-		end
+		elseif self.ps[id] then self.ps[id].skipUpdate = true end
 
 		first = false
 	end
 
-	if not hoveredCostume and self.p then self.p.forceCostume = nil end
+	if not hoveredCostume and self.p then
+		self.p.forceCostume = nil
+	end
 
 	imgui.End()
 
 	if appliedBBPTheme then bbp.gui.popStyle() end
 
-	self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
-	self.p.y = 180
-	self.p.drawScale = 2
-	self.p.lineWidth = 3
-	self.p.forceCostume = hoveredCostume
+	if self.p then
+		self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
+		self.p.y = 180
+		self.p.drawScale = 2
+		self.p.lineWidth = 3
+		self.p.forceCostume = hoveredCostume
+	end
 	love.graphics.setCanvas(oldCanv)
 end)
 
