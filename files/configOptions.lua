@@ -75,7 +75,7 @@ return {
 	realCostumes = {
 		type = "combo",
 		name = "Real Costumes",
-		tooltips = { short = "Show the real cosumtes instead o fthe preview" },
+		tooltips = { short = "Show the real cosumtes instead of the preview" },
 		values = { "never", "hover", "antihover", "always" },
 		valueTooltips = {
 			{ short = "Always shows the preview" },
@@ -86,11 +86,22 @@ return {
 		default = "hover"
 	},
 	liveRealCostumes = {
-		type = "bool",
+		type = "combo",
 		name = "Live Real Costumes",
 		tooltips = { short = "Updates cranky in real time\nCauses more lag" },
-		default = false,
-		off = false
+		values = { "never", "parallel", "independent" },
+		valueTooltips = {
+			{ short = "Show a frozen cranky in different costumes" },
+			{ short = "Show the same live cranky in different costumes\nCauses lag" },
+			{ short = "Show different live crankies in different costumes\nCauses lots of lag" }
+		},
+		default = "never"
+	},
+	zoom = {
+		type = "float",
+		name = "Size",
+		tooltips = { short = "Multiplies the Previews by a certain size" },
+		default = 1
 	},
 
 	-- Internal Variables (as a replacement instead of using global variables)

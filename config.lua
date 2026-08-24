@@ -2,8 +2,8 @@ if not utilitools then imgui.Text("Utilitools is disabled") return end
 local configHelpers = utilitools.configHelpers
 configHelpers.setMod(mod)
 
-if imgui.BeginTabBar("beattoolsConfig") then
-	if imgui.BeginTabItem("General##beattoolsConfig") then
+if imgui.BeginTabBar("betterCostumesConfig") then
+	if imgui.BeginTabItem("General##betterCostumesConfig") then
 		configHelpers.input("tooltips")
 		configHelpers.presets.menuButtons()
 		configHelpers.presets.updateOptions()
@@ -13,6 +13,7 @@ if imgui.BeginTabBar("beattoolsConfig") then
 		configHelpers.input("showHiddenCostumes")
 		configHelpers.input("unlockAllCostumes")
 		imgui.Separator()
+		configHelpers.input("zoom")
 		configHelpers.input("realCostumes")
 		configHelpers.input("liveRealCostumes")
 		configHelpers.input("showCrankyLeft")
@@ -20,11 +21,11 @@ if imgui.BeginTabBar("beattoolsConfig") then
 		imgui.Separator()
 		configHelpers.input("favoriteKey")
 		configHelpers.input("selectiveRandomness")
-		imgui.EndTabItem("General##beattoolsConfig")
+		imgui.EndTabItem("General##betterCostumesConfig")
 	end
-	if imgui.BeginTabItem("Search##beattoolsConfig") then
+	if imgui.BeginTabItem("Search##betterCostumesConfig") then
 		configHelpers.presets.search()
-		imgui.EndTabItem("Search##beattoolsConfig")
+		imgui.EndTabItem("Search##betterCostumesConfig")
 	end
 	imgui.EndTabBar()
 end
