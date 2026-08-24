@@ -350,6 +350,7 @@ st:setFgDraw(function(self)
 		configHelpers.input("showHiddenCostumes")
 		configHelpers.input("unlockAllCostumes")
 		imgui.Separator()
+		configHelpers.input("zoom")
 		configHelpers.input("realCostumes")
 		configHelpers.input("liveRealCostumes")
 		configHelpers.input("showCrankyLeft")
@@ -359,8 +360,8 @@ st:setFgDraw(function(self)
 		configHelpers.input("selectiveRandomness")
 	end
 
-	local width = self.previewSize + self.style.WindowPadding.x * 2
-	local height = self.previewSize + self.style.WindowPadding.y * 2 + self.style.ItemSpacing.y + imgui.GetFontSize()
+	local width = self.previewSize * mod.config.zoom + self.style.WindowPadding.x * 2
+	local height = self.previewSize * mod.config.zoom + self.style.WindowPadding.y * 2 + self.style.ItemSpacing.y + imgui.GetFontSize()
 	local childSize = imgui.ImVec2_Float(width, height)
 
 	local first = true
@@ -411,14 +412,14 @@ st:setFgDraw(function(self)
 				imgui.PushStyleColor_U32(imgui.ImGuiCol_ChildBg, imgui.GetColorU32_Col(imgui.ImGuiCol_Header))
 			end
 
-			imgui.BeginChild_Str(costumeName .. "##" .. id, childSize, imgui.ImGuiChildFlags_Border + imgui.ImGuiChildFlags_AutoResizeY + imgui.ImGuiChildFlags_AlwaysAutoResize, imgui.ImGuiWindowFlags_NoInputs)
+			imgui.BeginChild_Str(costumeName .. "##" .. id, childSize, imgui.ImGuiChildFlags_Border + imgui.ImGuiChildFlags_AutoResizeY + imgui.ImGuiChildFlags_AlwaysAutoResize, imgui.ImGuiWindowFlags_NoInputs + imgui.ImGuiWindowFlags_NoScrollbar)
 
 			local pos1 = imgui.GetCursorPos()
 			imgui.NewLine()
 
 			if costume.preview then
 				local pos2 = imgui.GetCursorPos()
-				local canv
+				local canv = costume.preview
 				if (mod.config.realCostumes == "always" or (mod.config.realCostumes == "hover" and hovered) or (mod.config.realCostumes == "antihover" and not hovered)) then
 					if self.ps[id] and mod.config.liveRealCostumes == "independent" then
 						local pos3 = imgui.GetCursorScreenPos()
@@ -460,20 +461,23 @@ st:setFgDraw(function(self)
 						else canv = self.canvs2[id] end
 					end
 				end
-				imgui.Image(canv or costume.preview, imgui.ImVec2_Float(costume.preview:getWidth(), costume.preview:getHeight()), nil, nil, not self:isUnlocked(id) and imgui.ImVec4_Float(0.5, 0.5, 0.5, 1) or nil)
+				if canv then
+					local tint = not self:isUnlocked(id) and imgui.ImVec4_Float(0.5, 0.5, 0.5, 1) or nil
+					imgui.Image(canv, imgui.ImVec2_Float(canv:getWidth() * mod.config.zoom, canv:getHeight() * mod.config.zoom), nil, nil, tint)
+				end
 				if not self:isUnlocked(id) then
-					imgui.SetCursorPosX(pos2.x + (self.previewSize - self.lockSize) / 2)
-					imgui.SetCursorPosY(pos2.y + (self.previewSize - self.lockSize) / 2)
-					imgui.Image(sprites.lock, imgui.ImVec2_Float(self.lockSize, self.lockSize))
+					imgui.SetCursorPosX(pos2.x + (self.previewSize - self.lockSize) / 2 * mod.config.zoom)
+					imgui.SetCursorPosY(pos2.y + (self.previewSize - self.lockSize) / 2 * mod.config.zoom)
+					imgui.Image(sprites.lock, imgui.ImVec2_Float(self.lockSize * mod.config.zoom, self.lockSize * mod.config.zoom))
 				end
 				if self:isActive(id) then
-					imgui.SetCursorPosX(pos2.x + (self.previewSize - self.checkSize) / 2)
-					imgui.SetCursorPosY(pos2.y + (self.previewSize - self.checkSize) / 2)
-					imgui.Image(sprites.checkmark, imgui.ImVec2_Float(self.checkSize, self.checkSize))
+					imgui.SetCursorPosX(pos2.x + (self.previewSize - self.checkSize) / 2 * mod.config.zoom)
+					imgui.SetCursorPosY(pos2.y + (self.previewSize - self.checkSize) / 2 * mod.config.zoom)
+					imgui.Image(sprites.checkmark, imgui.ImVec2_Float(self.checkSize * mod.config.zoom, self.checkSize * mod.config.zoom))
 				end
 				if self:isFavorite(id) then
 					imgui.SetCursorPos(pos2)
-					imgui.Image(sprites.menu.atomMapSRank, imgui.ImVec2_Float(self.starSizeX, self.starSizeY))
+					imgui.Image(sprites.menu.atomMapSRank, imgui.ImVec2_Float(self.starSizeX * mod.config.zoom, self.starSizeY * mod.config.zoom))
 				end
 			end
 

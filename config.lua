@@ -13,6 +13,7 @@ if imgui.BeginTabBar("betterCostumesConfig") then
 		configHelpers.input("showHiddenCostumes")
 		configHelpers.input("unlockAllCostumes")
 		imgui.Separator()
+		configHelpers.input("zoom")
 		configHelpers.input("realCostumes")
 		configHelpers.input("liveRealCostumes")
 		configHelpers.input("showCrankyLeft")

@@ -97,6 +97,12 @@ return {
 		},
 		default = "never"
 	},
+	zoom = {
+		type = "float",
+		name = "Size",
+		tooltips = { short = "Multiplies the Previews by a certain size" },
+		default = 1
+	},
 
 	-- Internal Variables (as a replacement instead of using global variables)
 	searches = {
