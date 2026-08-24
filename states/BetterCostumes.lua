@@ -170,7 +170,8 @@ st:setInit(function(self)
 	self.starSizeX = 19
 	self.starSizeY = 18
 	self.style = imgui.GetStyle()
-
+	
+	self.searchString = ""
 	self.tab = self.tab or "All"
 	self.costumesSorted = {}
 
