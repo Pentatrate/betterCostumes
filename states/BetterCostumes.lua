@@ -238,6 +238,15 @@ st:setUpdate(function(self, dt)
 		end
 		self.p.skipRender = ({ never = true, behind = false, ["1/3"] = false, ["1/2"] = false, ["2/3"] = false })[mod.config.showCrankyLeft] or false
 	end
+	for id, p in pairs(self.ps) do
+		if not p.skipUpdate then
+			if p.dizzy >= 800 then
+				p.dizzy = 0
+				p.emoTimer = 100
+				p.cEmotion = "spiral"
+			end
+		end
+	end
 	if maininput:pressed("back") then
 		self:quitToMenu()
 	end
