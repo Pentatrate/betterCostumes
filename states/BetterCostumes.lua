@@ -350,23 +350,23 @@ st:setFgDraw(function(self)
 	self.initing = false
 	if tab ~= self.tab then self:sortCostumes() end
 
-	if self.tab == "Settings" then
+	if self.tab == "Settings" and utilitools then
 		local configHelpers = utilitools.configHelpers
-		configHelpers.setMod(mod)
-
-		configHelpers.input("betterCostumes")
-		imgui.Separator()
-		configHelpers.input("showHiddenCostumes")
-		configHelpers.input("unlockAllCostumes")
-		imgui.Separator()
-		configHelpers.input("zoom")
-		configHelpers.input("realCostumes")
-		configHelpers.input("liveRealCostumes")
-		configHelpers.input("showCrankyLeft")
-		configHelpers.input("lightModeBetterCostumes")
-		imgui.Separator()
-		configHelpers.input("favoriteKey")
-		configHelpers.input("selectiveRandomness")
+		if not configHelpers.setMod(mod) then
+			configHelpers.input("betterCostumes")
+			imgui.Separator()
+			configHelpers.input("showHiddenCostumes")
+			configHelpers.input("unlockAllCostumes")
+			imgui.Separator()
+			configHelpers.input("zoom")
+			configHelpers.input("realCostumes")
+			configHelpers.input("liveRealCostumes")
+			configHelpers.input("showCrankyLeft")
+			configHelpers.input("lightModeBetterCostumes")
+			imgui.Separator()
+			configHelpers.input("favoriteKey")
+			configHelpers.input("selectiveRandomness")
+		end
 	end
 
 	local width = self.previewSize * mod.config.zoom + self.style.WindowPadding.x * 2
