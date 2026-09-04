@@ -358,18 +358,6 @@ st:setFgDraw(function(self)
 	end
 	self.initing = false
 	if tab ~= self.tab then self:sortCostumes() end
-	if self.tab ~= "Settings" then
-		imgui.AlignTextToFramePadding()
-		imgui.Text("Search:")
-		imgui.SameLine()
-		local avail = imgui.GetContentRegionAvail().x
-		imgui.SetNextItemWidth(avail)
-		local oldSearchStr = self.searchString
-		self.searchString = helpers.InputText("##BetterCostumesSearch", self.searchString)
-		if oldSearchStr ~= self.searchString then
-			self:sortCostumes()
-		end
-	end
 
 	if self.tab == "Settings" and utilitools then
 		local configHelpers = utilitools.configHelpers
@@ -387,6 +375,17 @@ st:setFgDraw(function(self)
 			imgui.Separator()
 			configHelpers.input("favoriteKey")
 			configHelpers.input("selectiveRandomness")
+		end
+	else self.tab ~= "Settings" then
+		imgui.AlignTextToFramePadding()
+		imgui.Text("Search:")
+		imgui.SameLine()
+		local avail = imgui.GetContentRegionAvail().x
+		imgui.SetNextItemWidth(avail)
+		local oldSearchStr = self.searchString
+		self.searchString = helpers.InputText("##BetterCostumesSearch", self.searchString)
+		if oldSearchStr ~= self.searchString then
+			self:sortCostumes()
 		end
 	end
 
