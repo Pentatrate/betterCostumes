@@ -122,6 +122,7 @@ function st:sortCostumes()
 	self.costumesSorted = {}
 	if self.tab ~= "None" and self.tab ~= "Settings" then
 		for id, costume in pairs(Costumes) do
+			local search = string.lower(self.searchString or "")
 			if not self.fakeCostumes[id] then
 				local inTab
 				if self.tab == "All" then inTab = true end
@@ -129,6 +130,13 @@ function st:sortCostumes()
 				if self.tab == "Workshop" and costume.isWorkshop then inTab = true end
 				if self.tab == "Local" and costume.isCustom and not costume.isWorkshop then inTab = true end
 				if id == "none" or id == "random" then inTab = true end
+				
+				if inTab and search ~= "" and id ~= "none" and id ~= "random" then
+					local name = string.lower(self:getName(id, true) or "")
+					if not string.find(name, search, 1, true) then
+						inTab = false
+					end
+				end
 				if inTab and self:isVisible(id) then table.insert(self.costumesSorted, id) end
 			end
 		end
@@ -171,7 +179,8 @@ st:setInit(function(self)
 	self.starSizeX = 19
 	self.starSizeY = 18
 	self.style = imgui.GetStyle()
-
+	
+	self.searchString = ""
 	self.tab = self.tab or "All"
 	self.costumesSorted = {}
 
@@ -367,6 +376,17 @@ st:setFgDraw(function(self)
 			configHelpers.input("favoriteKey")
 			configHelpers.input("selectiveRandomness")
 		end
+	else self.tab ~= "Settings" then
+		imgui.AlignTextToFramePadding()
+		imgui.Text("Search:")
+		imgui.SameLine()
+		local avail = imgui.GetContentRegionAvail().x
+		imgui.SetNextItemWidth(avail)
+		local oldSearchStr = self.searchString
+		self.searchString = helpers.InputText("##BetterCostumesSearch", self.searchString)
+		if oldSearchStr ~= self.searchString then
+			self:sortCostumes()
+		end
 	end
 
 	local width = self.previewSize * mod.config.zoom + self.style.WindowPadding.x * 2
@@ -418,7 +438,7 @@ st:setFgDraw(function(self)
 			elseif hovered and self:isUnlocked(id) then
 				imgui.PushStyleColor_U32(imgui.ImGuiCol_ChildBg, imgui.GetColorU32_Col(imgui.ImGuiCol_HeaderHovered))
 			elseif self:isPotential(id) then
-				imgui.PushStyleColor_U32(imgui.ImGuiCol_ChildBg, imgui.GetColorU32_Col(imgui.ImGuiCol_Header))
+				imgui.PushStyleColor_U32(imgui.ImGuiCol_ChildBg, appliedBBPTheme and 0xFFF0F0F0 or imgui.GetColorU32_Col(imgui.ImGuiCol_Header))
 			end
 
 			imgui.BeginChild_Str(costumeName .. "##" .. id, childSize, imgui.ImGuiChildFlags_Border + imgui.ImGuiChildFlags_AutoResizeY + imgui.ImGuiChildFlags_AlwaysAutoResize, imgui.ImGuiWindowFlags_NoInputs + imgui.ImGuiWindowFlags_NoScrollbar)
@@ -506,9 +526,15 @@ st:setFgDraw(function(self)
 	end
 
 	imgui.End()
-
+	
 	if appliedBBPTheme then bbp.gui.popStyle() end
-
+	
+	if imgui.love.GetWantCaptureMouse() then
+		love.mouse.setVisible(true)
+	elseif savedata.options.game.customCursorInMenu and (savedata.options.game.cursorMode ~= "default") then
+		love.mouse.setVisible(false)
+	end
+	
 	if self.p then
 		self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
 		self.p.y = 180
