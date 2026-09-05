@@ -130,7 +130,7 @@ function st:sortCostumes()
 				if self.tab == "Workshop" and costume.isWorkshop then inTab = true end
 				if self.tab == "Local" and costume.isCustom and not costume.isWorkshop then inTab = true end
 				if id == "none" or id == "random" then inTab = true end
-				
+
 				if inTab and search ~= "" and id ~= "none" and id ~= "random" then
 					local name = string.lower(self:getName(id, true) or "")
 					if not string.find(name, search, 1, true) then
@@ -179,7 +179,7 @@ st:setInit(function(self)
 	self.starSizeX = 19
 	self.starSizeY = 18
 	self.style = imgui.GetStyle()
-	
+
 	self.searchString = ""
 	self.tab = self.tab or "All"
 	self.costumesSorted = {}
@@ -376,7 +376,7 @@ st:setFgDraw(function(self)
 			configHelpers.input("favoriteKey")
 			configHelpers.input("selectiveRandomness")
 		end
-	else self.tab ~= "Settings" then
+	elseif self.tab ~= "Settings" then
 		imgui.AlignTextToFramePadding()
 		imgui.Text("Search:")
 		imgui.SameLine()
@@ -526,15 +526,15 @@ st:setFgDraw(function(self)
 	end
 
 	imgui.End()
-	
+
 	if appliedBBPTheme then bbp.gui.popStyle() end
-	
+
 	if imgui.love.GetWantCaptureMouse() then
 		love.mouse.setVisible(true)
 	elseif savedata.options.game.customCursorInMenu and (savedata.options.game.cursorMode ~= "default") then
 		love.mouse.setVisible(false)
 	end
-	
+
 	if self.p then
 		self.p.x = ({ never = 300, behind = 300, ["1/3"] = 300 + 300 * 2 / 3, ["1/2"] = 300 + 300 * 1 / 2, ["2/3"] = 300 + 300 * 1 / 3 })[mod.config.showCrankyLeft] or 300
 		self.p.y = 180
